@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Button, Typography, Grid, TextField } from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/styles';
 
-import LoLBettingPool from "./contracts/LoLBettingPool.json";
+import WeatherBettingPool from "./contracts/WeatherBettingPool.json";
 import getWeb3 from "./utils/getWeb3";
 
 import { theme } from './utils/theme';
@@ -25,9 +25,9 @@ class App extends Component {
 
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = LoLBettingPool.networks[networkId];
+      const deployedNetwork = WeatherBettingPool.networks[networkId];
       const contract = new web3.eth.Contract(
-        LoLBettingPool.abi,
+        WeatherBettingPool.abi,
         deployedNetwork && deployedNetwork.address,
       );
 
@@ -59,9 +59,10 @@ class App extends Component {
     const myBetA = await this.state.web3.utils.fromWei(await this.state.contract.methods.getBetAmount(true).call({from: this.state.accounts[0]}));
     const myBetB = await this.state.web3.utils.fromWei(await this.state.contract.methods.getBetAmount(false).call({from: this.state.accounts[0]}));
 
-    const matchId = await this.state.contract.methods.matchId().call();
-    const teamA = await this.state.contract.methods.teamA().call();
-    const teamB = await this.state.contract.methods.teamB().call();
+    const city = await this.state.contract.methods.city().call();
+    const date = await this.state.contract.methods.date().call();
+    const minTempF = await this.state.contract.methods.minTempF().call();
+    const maxTempF = await this.state.contract.methods.maxTempF().call();
 
     const fulfilled = await this.state.contract.methods.fulfilled().call();
     const teamADidWin = await this.state.contract.methods.teamADidWin().call();
@@ -71,19 +72,19 @@ class App extends Component {
     {
         if (teamADidWin)
         {
-            fulfillMessage = `${teamA} has won!`;
+            fulfillMessage = `Team A Has Won!`;
         }
         else
         {
-            fulfillMessage = `${teamB} has won!`;
+            fulfillMessage = `Team B Has Won -_-`;
         }
     }
     else
     {
-        fulfillMessage = "Match result has not been received yet";
+        fulfillMessage = "Result has not been received yet";
     }
     
-    this.setState({ totalBetA, totalBetB, myBetA, myBetB, matchId, teamA, teamB, fulfilled, teamADidWin, fulfillMessage });
+    this.setState({ totalBetA, totalBetB, myBetA, myBetB, city, date, minTempF, maxTempF, fulfilled, teamADidWin, fulfillMessage });
   }
 
   handleUpdateForm = (name, value) => {
@@ -164,10 +165,10 @@ class App extends Component {
         <div className="App">
           <Header />
           <Typography variant="h5" style={{ marginTop: 32 }}>
-            {`Match ID: ${this.state.matchId}`}
+            {`City: ${this.state.city}`}
           </Typography>
           <Typography variant="h5">
-            {`${this.state.teamA} vs. ${this.state.teamB}`}
+            {`Avg Temp F Between ${this.state.minTempF} & ${this.state.maxTempF} on ${this.state.date}`}
           </Typography>
           <Typography variant="h5" style={{ marginTop: 32 }}>
             {this.state.fulfillMessage}
@@ -178,12 +179,12 @@ class App extends Component {
             </Grid>
             <Grid item xs={3}>
               <Typography variant="h5">
-                {`${this.state.teamA}`}
+                Team A
               </Typography>
             </Grid>
             <Grid item xs={3}>
               <Typography variant="h5">
-                {`${this.state.teamB}`}
+                Team B
               </Typography>
             </Grid>
           </Grid>
@@ -245,12 +246,12 @@ class App extends Component {
             </Grid>
             <Grid item xs={3}>
                 <Button variant="contained" color="primary" onClick={() => this.handleBet('teamA')}>
-                {`Bet on ${this.state.teamA}`}
+                {`Bet for Team A`}
                 </Button>
             </Grid>
             <Grid item xs={3}>
               <Button variant="contained" color="primary" onClick={() => this.handleBet('teamB')}>
-                {`Bet on ${this.state.teamB}`}
+                {`Bet for Team B`}
               </Button>
             </Grid>
           </Grid>

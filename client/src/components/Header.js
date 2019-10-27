@@ -25,7 +25,7 @@ export default function Header() {
           </Grid>
           <Grid item xs>
             <Typography variant="h6" color="inherit">
-              League of Legends betting w/ Data Sports Group API
+              Dan Hopes the Weather is Nice in SF Betting Pool
             </Typography>
           </Grid>
         </Toolbar>
